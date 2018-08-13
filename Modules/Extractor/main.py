@@ -22,7 +22,7 @@ class Extractor:
         self.model = torch.nn.DataParallel(self.model).cuda()
 
     def inference_by_path(self, image_path):
-        result = []
+        result = dict()
 
         # TODO
         #   - Inference using image path
@@ -38,15 +38,16 @@ class Extractor:
         input_img = V(Resize(img).unsqueeze(0), volatile=True)
 
 
-        result= self.model.forward(input_img)
+        result = self.model.forward(input_img)
         
-        import time
-        time.sleep(2)
+        # import time
+        # time.sleep(2)
 
         for k,v in result.items():
-            result[k]=v.data.cpu().numpy().tostring()
+            result[k]=str(v.data.cpu().numpy().tostring())
             #result[k]=v.data.cpu().numpy().tobytes()
-
+        print(type(result))
+        # print(result)
         self.result=[result]
 
         return self.result
