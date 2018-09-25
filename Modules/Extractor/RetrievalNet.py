@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torchvision.transforms as trn
 from PIL import Image
 from torch.autograd import Variable as V
-from torchsummary import summary
 
 
 class RetrievalNet(nn.Module):
@@ -19,14 +18,26 @@ class RetrievalNet(nn.Module):
 
     def forward(self,x):
         x=self.features(x)
+
+        flat=x.view(x.size(0),-1)
+        x=x/(torch.norm(flat,p=2,dim=1,keepdim=True)+1e-6).expand_as(x)
+
         feature_MAC = F.max_pool2d(x, (x.size(-2), x.size(-1))).squeeze(-1).squeeze(-1)
+        feature_MAC= feature_MAC/(torch.norm(feature_MAC,p=2,dim=1,keepdim=True)+1e-6).expand_as(feature_MAC)
+
         feature_SPoC = F.avg_pool2d(x, (x.size(-2), x.size(-1))).squeeze(-1).squeeze(-1)
+        feature_SPoC = feature_SPoC / (torch.norm(feature_SPoC, p=2, dim=1, keepdim=True) + 1e-6).expand_as(feature_SPoC)
+
         feature_RMAC = self.rmac(x, L=3, eps=1e-6).squeeze(-1).squeeze(-1)
+        feature_RMAC = feature_RMAC / (torch.norm(feature_RMAC, p=2, dim=1, keepdim=True) + 1e-6).expand_as(feature_RMAC)
+
         feature_RAMAC = self.ramac(x, L=3, eps=1e-6).squeeze(-1).squeeze(-1)
+        feature_RAMAC = feature_RAMAC / (torch.norm(feature_RAMAC, p=2, dim=1, keepdim=True) + 1e-6).expand_as(feature_RAMAC)
 
 
 
-        return {'Pool5':x, 'MAC':feature_MAC, 'SPoC':feature_SPoC, 'RMAC':feature_RMAC, 'RAMAC':feature_RAMAC}
+        #return {'Pool5':x, 'MAC':feature_MAC, 'SPoC':feature_SPoC, 'RMAC':feature_RMAC, 'RAMAC':feature_RAMAC}
+        return {'MAC': feature_MAC}
 
     def rmac(self,x, L=3, eps=1e-6):
         ovr = 0.4  # desired overlap of neighboring regions
@@ -148,38 +159,42 @@ class RetrievalNet(nn.Module):
         return v
 
 
-'''
+
 if __name__=='__main__':
 
-    import copy
-    model = RetrievalNet()
 
+
+    model = RetrievalNet()
+    '''
+    import copy
     sv_model = copy.deepcopy(model)
     torch.save(sv_model.state_dict(), "RetrievalNet_model.pth.tar")
     print(sv_model.state_dict())
 
     #model=torch.load("Extractor_model.pth.tar")
-
+    '''
 
     model.cuda()
     model.eval()
 
-#    summary(model, (3, 224, 224))
+    #summary(model, (3, 224, 224))
 
     Resize = trn.Compose([
         trn.Resize((224, 224)),
         trn.ToTensor(),
         trn.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
-    img = Image.open('../../444562.jpg')
+    img = Image.open('444562.jpg')
     img = img.convert("RGB")
     input_img = V(Resize(img).unsqueeze(0), volatile=True)
 
     result = model.forward(input_img.cuda())
 
+    print(result['MAC'])
+
 
 
 #    print(result['MAC'])
-'''
+
 
 

@@ -19,7 +19,6 @@ class Extractor:
         state_dict=torch.load(os.path.join(code_path, 'RetrievalNet_model.pth.tar'))
 
         self.model.load_state_dict(state_dict)
-        self.model = torch.nn.DataParallel(self.model).cuda()
 
     def inference_by_path(self, image_path):
         result = dict()
@@ -44,8 +43,8 @@ class Extractor:
         # time.sleep(2)
 
         for k,v in result.items():
-            result[k]=str(v.data.cpu().numpy().tostring())
-            #result[k]=v.data.cpu().numpy().tobytes()
+            #result[k]=v.data.cpu().numpy().tostring()
+            result[k]=str(v.data.cpu().numpy().tolist())
         print(type(result))
         # print(result)
         self.result=[result]
@@ -56,4 +55,3 @@ if __name__=='__main__':
     a=Extractor()
     ret= a.inference_by_path('../../../444562.jpg')
     print(ret)
-

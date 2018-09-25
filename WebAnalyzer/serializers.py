@@ -5,8 +5,8 @@ from WebAnalyzer.models import *
 class ResultSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ResultModel
-        fields = ('layer', 'feature')
-        read_only_fields = ('layer', 'feature')
+        fields = ('descriptor', 'feature')
+        read_only_fields = ('descriptor', 'feature')
 
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):

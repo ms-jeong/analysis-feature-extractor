@@ -4,7 +4,8 @@
 */migrations/[0-9]*_*.py
 db.sqlite3
 media/
-
+*.bak
+.tar
 
 ### Python template
 # Byte-compiled / optimized / DLL files

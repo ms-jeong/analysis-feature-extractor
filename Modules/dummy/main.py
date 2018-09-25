@@ -18,7 +18,7 @@ class Dummy:
         #   - Inference using image path
         import time
         time.sleep(2)
-        result = [{'CONV': b"TEST", 'FC': b"DEBUG"}, {'CONV': b"TEST", 'FC': b"DEBUG"}]
+        result = [{'descriptor':"[[0.122312]]"}]
         self.result = result
 
         return self.result
